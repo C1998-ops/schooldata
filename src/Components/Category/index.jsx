@@ -31,7 +31,12 @@ const Category = () => {
     setOpen(false);
   }
   function AddCategory() {}
-  function handleChange() {}
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setFormData((prev) => {
+      return { ...prev, [name]: value };
+    });
+  }
   return (
     <div className="w-full p-8">
       <h1 className="font-extrabold"> Category</h1>
