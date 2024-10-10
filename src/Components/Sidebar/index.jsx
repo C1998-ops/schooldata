@@ -16,10 +16,10 @@ const Sidebar = () => {
     { name: "Setting", link: "/" },
   ];
   return (
-    <div className="min-h-screen w-auto bg-blue-900 h-screen p-5  pt-8 relative duration-300">
-      <div className="flex items-center py-4 justify-start">
+    <div className="min-h-screen max-w-[220px] sm:max-w-md bg-blue-900 h-screen p-5  pt-8 relative duration-300">
+      <div className="flex items-center py-4 justify-items-end">
         <img src={logo} alt="logo" width={100} height={100} />
-        <span className="text-white font-bold text-lg">Evol8 Company</span>
+        <span className="text-white font-bold text-lg">Evol8</span>
       </div>
       <ul className="list-none text-white pt-6 ">
         {items.map((info, index) => (

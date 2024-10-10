@@ -1,23 +1,27 @@
 import React, { useEffect, useState } from "react";
 import Table from "../Table";
 import Modal from "../Modal/Modal";
-export const initialData = [
+import handleErrors from "../utils/ErrorHandler";
+const initialData = [
   {
     "sl.no": 1,
     "Department Name": "Mathematic Department",
     "Short Name": "Maths",
+    "Category Name": "Statistics",
     "Is Active": true,
   },
   {
     "sl.no": 2,
     "Department Name": "IOT",
     "Short Name": "IOT",
+    "Category Name": "IOT",
     "Is Active": true,
   },
   {
     "sl.no": 3,
     "Department Name": "IT Departmentt",
     "Short Name": "IT",
+    "Category Name": "Artificial Intelligence",
     "Is Active": true,
   },
 ];
@@ -28,52 +32,78 @@ function Department() {
     "Department Name": "",
     "Short Name": "",
     "Is Active": false,
+    startTime: "",
+    endTime: "",
   };
 
   const [tableData, setTableData] = useState(initialData);
   const [editData, setEditData] = useState(null);
   const [formdata, setFormData] = useState(departmentInfo);
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    const stored = localStorage.getItem("initial");
+    if (stored) {
+      setTableData(JSON.parse(stored));
+    } else {
+      localStorage.setItem("initial", JSON.stringify(tableData));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (tableData.length > 0) {
+      localStorage.setItem("initial", JSON.stringify(tableData));
+    }
+  }, [tableData]);
 
   const onEdit = (id) => {
     setEditData(id);
     setOpen(true);
     setFormData(tableData[id]);
   };
-  useEffect(() => {
-    function handleEdit() {
-      setEditData(null);
-    }
-    handleEdit();
-  }, [editData, open, formdata]);
+
   const onDelete = (index) => {
     const updatedData = tableData.filter((_, i) => i !== index);
     setTableData(updatedData);
   };
   function onClose() {
+    setEditData(null);
     setOpen(false);
   }
   function AddDepartment(event) {
-    event.preventDefault();
-    if (editData !== null) {
-      setTableData((empArr) =>
-        empArr.map((value, index) => (index === editData ? formdata : value))
-      );
-    } else {
-      setTableData((prevData) => {
-        return [
-          ...prevData,
-          {
-            ...formdata,
-            "sl.no": prevData.length + 1,
-          },
-        ];
-      });
-
+    try {
+      event.preventDefault();
+      if (editData !== null) {
+        setTableData((empArr) =>
+          empArr.map((value, index) => (index === editData ? formdata : value))
+        );
+      } else {
+        const errors = handleErrors(formdata);
+        if (Object.keys(errors).length > 0) {
+          setErrors(errors);
+          console.log(errors);
+          return;
+        }
+        setTableData((prevData) => {
+          return [
+            ...prevData,
+            {
+              ...formdata,
+              "sl.no": prevData.length + 1,
+            },
+          ];
+        });
+      }
+    } catch (error) {
+      console.error("Failed to save depatemnt", error);
+    } finally {
       setFormData({
         "sl.no": "",
         "Department Name": "",
         "Short Name": "",
         "Is Active": false,
+        endTime: "",
+        startTime: "",
       });
     }
   }
@@ -83,16 +113,32 @@ function Department() {
     setFormData((prev) => {
       return { ...prev, [name]: type === "checkbox" ? checked : value };
     });
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: "",
+    }));
   }
+  function handleAdddeptClick() {
+    setFormData({
+      "sl.no": "",
+      "Department Name": "",
+      "Short Name": "",
+      "Is Active": false,
+      startTime: "",
+      endTime: "",
+    });
+    setOpen(true);
+  }
+
   return (
-    <div className="w-full p-8">
-      <h1 className="font-extrabold"> Departments</h1>
+    <div className="w-full p-8 max-h-fit">
+      <h1 className="text-2xl font-semibold mb-4"> Departments</h1>
       <div className="flex justify-between">
         <h3 className="text-lg ">Manage Departments</h3>
         <button
           type="button"
           className="bg-blue-900 text-white font-bold py-4 px-2 rounded"
-          onClick={() => setOpen(true)}
+          onClick={handleAdddeptClick}
         >
           Add Department
         </button>
@@ -103,7 +149,7 @@ function Department() {
       >
         Refresh
       </button>
-      <div className="py-4 w-full">
+      <div className="py-4 min-w-max max-w-screen-md">
         <Table data={tableData} onEdit={onEdit} onDelete={onDelete} />
       </div>
       <Modal isOpen={open} onClose={onClose}>
@@ -123,6 +169,11 @@ function Department() {
                   value={formdata["Department Name"]}
                   className="border p-1 text-black outline-blue-50 font-sans w-full"
                 />
+                {errors["Department Name"] && (
+                  <span className="block w-full text-red-500 text-sm">
+                    {errors["Department Name"]}
+                  </span>
+                )}
               </label>
               <label htmlFor="Short Name" className="block text-gray-500">
                 Short Name
@@ -134,6 +185,11 @@ function Department() {
                   value={formdata["Short Name"]}
                   className="border p-1 text-black outline-blue-50 font-sans w-full"
                 />
+                {errors["Short Name"] && (
+                  <span className="block w-full text-red-500 text-sm">
+                    {errors["Short Name"]}
+                  </span>
+                )}
               </label>
               <label htmlFor="start time" className="block text-gray-500">
                 Start Time
@@ -142,39 +198,57 @@ function Department() {
                   name="startTime"
                   id="start time"
                   className="w-full outline-blue-50 text-black"
+                  onChange={handleChange}
+                  value={formdata["startTime"]}
                 />
+                {errors["startTime"] && (
+                  <span className="block w-full text-red-500 text-sm">
+                    {errors["startTime"]}
+                  </span>
+                )}
               </label>
-              <label htmlFor="start time" className="block text-gray-500">
+              <label htmlFor="end time" className="block text-gray-500">
                 End Time
                 <input
                   type="time"
                   name="endTime"
                   id="end time"
                   className="w-full outline-blue-50 text-black"
+                  onChange={handleChange}
+                  value={formdata["endTime"]}
                 />
+                {errors["endTime"] && (
+                  <span className="block w-full text-red-500 text-sm">
+                    {errors["endTime"]}
+                  </span>
+                )}
               </label>
               <label htmlFor="isActive" className="block text-gray-500">
                 <input
                   type="checkbox"
-                  name="isActive"
-                  checked={formdata["Is Active"]}
+                  name="Is Active"
                   onChange={handleChange}
+                  checked={formdata["Is Active"]}
                   className="border mr-2"
                 />
                 {""}
                 isActive
+                {errors["Is Active"] && (
+                  <span className="block w-full text-red-500 text-sm">
+                    z{errors["Is Active"]}
+                  </span>
+                )}
               </label>
-              <label htmlFor="isActive" className="block text-gray-500">
+              <label htmlFor="days" className="block text-gray-500">
                 Working Days (Select Multiple: CTRL+click)
                 <select
                   name="workndays"
                   id="days"
                   multiple
                   className="w-full outline-none"
+                  defaultValue={["monday"]}
                 >
-                  <option value="monday" selected>
-                    Monday
-                  </option>
+                  <option value="monday">Monday</option>
                   <option value="tuesday">Tuesday</option>
                   <option value="wednesday">wednesday</option>
                   <option value="thursday">thursday</option>

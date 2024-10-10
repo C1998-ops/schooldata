@@ -1,12 +1,25 @@
 import React from "react";
 
-const Table = ({ data, onEdit, onDelete }) => {
+const Table = ({ data, onEdit, onDelete, from }) => {
   // Get headers from the keys of the first object
-  const headers = data.length > 0 ? Object.keys(data[0]) : [];
+  const CategoryHead = [
+    "sl.no",
+    "Department Name",
+    "Short Name",
+    "Is Active",
+    "Category Name",
+  ];
+  const departmentHead = [
+    "sl.no",
+    "Department Name",
+    "Short Name",
+    "Is Active",
+  ];
 
+  const headers = from === "Category" ? CategoryHead : departmentHead;
   return (
     <div>
-      <table className="min-w-full border-collapse border border-gray-300">
+      <table className="table min-w-[900px] w-full sm:max-w-screen-lg border-collapse border border-gray-300">
         <thead>
           <tr>
             {headers.map((header, index) => (
@@ -28,7 +41,9 @@ const Table = ({ data, onEdit, onDelete }) => {
                     key={cellIndex}
                     className="border border-gray-300 px-4 py-2"
                   >
-                    {row[header].toString()}{" "}
+                    {row[header] !== undefined && row[header] !== null
+                      ? row[header].toString()
+                      : ""}
                   </td>
                 </>
               ))}{" "}

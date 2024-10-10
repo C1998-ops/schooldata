@@ -4,11 +4,10 @@ import "./index.css";
 import App, { CategoryComponent, DepartmentComponent } from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Layout from "./Components/layout/Layout";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const router = createBrowserRouter([
-  { path: "/", element: <Layout /> },
+  { path: "/", element: <App /> },
   { path: "department", element: <DepartmentComponent /> },
   { path: "category", element: <CategoryComponent /> },
 ]);
