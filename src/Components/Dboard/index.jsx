@@ -1,25 +1,46 @@
 import React, { useEffect, useState } from "react";
+import { departmetUrl, subCategoryUrl } from "../utils/routes";
+import axios from "axios";
 const Dashboard = () => {
-  const numbers = ["Departments", "Categories"];
-  const [formData, setFormData] = useState([]);
+  const headers = ["Departments", "Categories", "Sub Categories"];
+  const [formData, setFormData] = useState(null);
+  const [loading, setloading] = useState(true);
+  const [error, setError] = useState(null);
+  console.log(formData);
   useEffect(() => {
-    const savedFormData = JSON.parse(localStorage.getItem("initial"));
-    if (savedFormData) {
-      setFormData(savedFormData);
+    async function fetchDashboard() {
+      try {
+        const { data, status } = await axios.get(
+          `${departmetUrl}/get/results`,
+          {
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        if (status === 200) {
+          setFormData(data?.data ?? null);
+          setloading(false);
+        }
+      } catch (error) {
+        console.error("failed loading data", error);
+        setError("Failed to load dashboard data");
+        setloading(false);
+      }
     }
+    fetchDashboard();
   }, []);
-  const departmentLength = formData.filter(
-    (data) => data["Department Name"]
-  ).length;
-  const active = formData.filter((data) => data["Is Active"]).length;
-  const catLength = formData.filter((data) => data["Category Name"]).length;
-
+  if (loading) {
+    return <p>Loading dashboard data ....</p>;
+  }
+  if (error !== null) {
+    return <span>{error}</span>;
+  }
   return (
     <div className="h-screen flex-1 p-8">
       <h2 className="text-2xl">Dashboard </h2>
       <div className="sm:flex space-x-4 max-w-md mx-auto box-content">
-        {numbers.map((row, rowIndex) => {
-          const values = row === "Departments" ? departmentLength : catLength;
+        {headers.map((row, rowIndex) => {
+          const values = formData[row].total;
+          const active = formData[row].totalActive;
           return (
             <div className="my-4">
               <div className="p-8 text-center">

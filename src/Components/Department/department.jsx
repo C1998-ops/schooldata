@@ -1,30 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Table from "../Table";
 import Modal from "../Modal/Modal";
+import axios from "axios";
 import handleErrors from "../utils/ErrorHandler";
-const initialData = [
-  {
-    "sl.no": 1,
-    "Department Name": "Mathematic Department",
-    "Short Name": "Maths",
-    "Category Name": "Statistics",
-    "Is Active": true,
-  },
-  {
-    "sl.no": 2,
-    "Department Name": "IOT",
-    "Short Name": "IOT",
-    "Category Name": "IOT",
-    "Is Active": true,
-  },
-  {
-    "sl.no": 3,
-    "Department Name": "IT Departmentt",
-    "Short Name": "IT",
-    "Category Name": "Artificial Intelligence",
-    "Is Active": true,
-  },
-];
+import { departmetUrl } from "../utils/routes";
+
 function Department() {
   const [open, setOpen] = useState(false);
 
@@ -36,47 +16,76 @@ function Department() {
     endTime: "",
   };
 
-  const [tableData, setTableData] = useState(initialData);
+  const [tableData, setTableData] = useState([]);
   const [editData, setEditData] = useState(null);
   const [formdata, setFormData] = useState(departmentInfo);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    const stored = localStorage.getItem("initial");
-    if (stored) {
-      setTableData(JSON.parse(stored));
-    } else {
-      localStorage.setItem("initial", JSON.stringify(tableData));
+    async function fetchDepartments() {
+      try {
+        const { data, status } = await axios.get(
+          `${departmetUrl}/get/departments`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (status === 200 && data !== null) {
+          setTableData(data.data); // Assuming data.data contains your department data
+        }
+      } catch (error) {
+        console.error("Error fetching departments", error);
+      }
     }
+    fetchDepartments();
+  }, []);
+
+  const onClose = useCallback(() => {
+    setOpen(false);
+    setEditData(null);
   }, []);
 
   useEffect(() => {
-    if (tableData.length > 0) {
-      localStorage.setItem("initial", JSON.stringify(tableData));
-    }
-  }, [tableData]);
+    setEditData(null);
+  }, [onClose]);
 
   const onEdit = (id) => {
     setEditData(id);
     setOpen(true);
-    setFormData(tableData[id]);
+    setFormData(tableData.find((data) => data["sl.no"] === id));
   };
 
-  const onDelete = (index) => {
-    const updatedData = tableData.filter((_, i) => i !== index);
-    setTableData(updatedData);
-  };
-  function onClose() {
-    setEditData(null);
-    setOpen(false);
-  }
-  function AddDepartment(event) {
+  const onDelete = async (rowId) => {
     try {
-      event.preventDefault();
+      await axios.delete(`${departmetUrl}/delete/department/${rowId}`);
+      const updatedData = tableData.filter((_, i) => _["sl.no"] !== rowId);
+      setTableData(updatedData);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  async function AddDepartment(event) {
+    event.preventDefault();
+    try {
       if (editData !== null) {
-        setTableData((empArr) =>
-          empArr.map((value, index) => (index === editData ? formdata : value))
+        const { data } = await axios.put(
+          `${departmetUrl}/update/department/${editData}`,
+          formdata,
+          {
+            headers: { "Content-Type": "application/json" },
+          }
         );
+        if (data) {
+          setTableData((prevData) =>
+            prevData.map((value) =>
+              value["sl.no"] === editData ? { ...value, ...formdata } : value
+            )
+          );
+        }
+        return;
       } else {
         const errors = handleErrors(formdata);
         if (Object.keys(errors).length > 0) {
@@ -84,18 +93,21 @@ function Department() {
           console.log(errors);
           return;
         }
-        setTableData((prevData) => {
-          return [
-            ...prevData,
-            {
-              ...formdata,
-              "sl.no": prevData.length + 1,
-            },
-          ];
-        });
+        const { data } = await axios.post(
+          `${departmetUrl}/add/department`,
+          formdata,
+          {
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        if (data !== null) {
+          setTableData((prevData) => {
+            return [...prevData, formdata];
+          });
+        }
       }
     } catch (error) {
-      console.error("Failed to save depatemnt", error);
+      console.error("Failed to save department", error);
     } finally {
       setFormData({
         "sl.no": "",
@@ -145,16 +157,21 @@ function Department() {
       </div>
       <button
         type="button"
-        className="bg-yellow-300 text-black font-bold py-4 px-2 rounded"
+        className="bg-yellow-300 text-black font-bold py-4 px-2 rounded cursor-not-allowed"
       >
         Refresh
       </button>
-      <div className="py-4 min-w-max max-w-screen-md">
-        <Table data={tableData} onEdit={onEdit} onDelete={onDelete} />
+      <div className="py-4 max-w-screen-lg">
+        <Table
+          data={tableData}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          from={"Department"}
+        />
       </div>
       <Modal isOpen={open} onClose={onClose}>
         <div className="bg-white">
-          <h2 className="min-w-[400px] w-full font-bold text-2xl">
+          <h2 className="min-w-full md:max-w-full w-full font-bold text-2xl">
             Add Department
           </h2>
           <form onSubmit={AddDepartment}>

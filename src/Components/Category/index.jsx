@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
-
+import React, { useCallback, useEffect, useState } from "react";
 import Table from "../Table";
 import Modal from "../Modal/Modal";
 import handleErrors from "../utils/ErrorHandler";
 import Error from "../utils/Error";
+import { categoryUrl, departmetUrl } from "../utils/routes";
+import axios from "axios";
+
 const Category = () => {
   const category = {
     "Department Name": "Select Department",
@@ -14,46 +16,99 @@ const Category = () => {
   };
   const [formdata, setFormData] = useState(category);
   const [categoryData, setCategorydata] = useState([]);
+  const [uniqueDept, setUniqueDept] = useState([]);
   const [editdata, setEditdata] = useState(null);
   const [open, setOpen] = useState(false);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    const storedData = localStorage.getItem("initial");
-    if (storedData) {
-      setCategorydata(JSON.parse(storedData));
+    async function fetchCategories() {
+      try {
+        const { data, status } = await axios.get(
+          `${categoryUrl}/get/categories`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (status === 200) {
+          const result = data?.data ?? [];
+          setCategorydata(result);
+        }
+      } catch (error) {
+        console.error("Error fetching departments", error);
+        if (error.response) {
+          console.error(
+            `Error: ${error.response.status}, ${error.response.data?.message}`
+          );
+        } else if (error.request) {
+          // The request was made but no response received
+          console.error("No response received", error.request);
+        } else {
+          // Something went wrong while setting up the request
+          console.error("Error setting up request", error.message);
+        }
+      }
     }
+    fetchCategories();
   }, []);
 
   useEffect(() => {
-    if (categoryData.length > 0) {
-      localStorage.setItem("initial", JSON.stringify(categoryData));
-    }
-  }, [categoryData]);
-
-  const getUniqueDeps =
-    categoryData?.reduce((acc, curr) => {
-      if (!acc["Department Name"]) {
-        acc.push(curr["Department Name"]);
+    async function handleDepartments() {
+      try {
+        const { data, status } = await axios.get(
+          `${categoryUrl}/current/departments`,
+          { headers: { "Content-Type": "application/json" } }
+        );
+        if (status === 200) {
+          setUniqueDept(data?.data ?? []);
+        }
+      } catch (error) {
+        if (error.response) {
+          console.error(
+            `Error: ${error.response.status}, ${error.response.data?.message}`
+          );
+        } else if (error.request) {
+          // The request was made but no response received
+          console.error("No response received", error.request);
+        } else {
+          // Something went wrong while setting up the request
+          console.error("Error setting up request", error.message);
+        }
       }
-      return acc;
-    }, []) || [];
+    }
+    handleDepartments();
+  }, []);
 
-  function onDelete(index) {
-    const updatedData = categoryData.filter((_, i) => i !== index);
-    setCategorydata(updatedData);
+  async function onDelete(index) {
+    const { data, status } = await axios.delete(
+      `${categoryUrl}/delete/${index}`,
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    if (data !== null && status === 200) {
+      const updatedData = categoryData.filter((_, i) => _["sl.no"] !== index);
+      setCategorydata(updatedData);
+    }
   }
 
   function onEdit(rowid) {
-    setFormData(categoryData[rowid]);
+    const data = categoryData.find((data) => data["sl.no"] === rowid);
+    setFormData(data);
     setOpen(true);
-    setEditdata(rowid);
   }
 
-  function onClose() {
+  const onClose = useCallback(() => {
     setOpen(false);
-  }
-  function AddCategory(event) {
+    setEditdata(null);
+  }, []);
+
+  useEffect(() => {
+    setEditdata(null);
+  }, [onClose]);
+  async function AddCategory(event) {
     try {
       event.preventDefault();
       const errors = handleErrors(formdata);
@@ -62,15 +117,29 @@ const Category = () => {
         return;
       }
       if (editdata !== null) {
-        setCategorydata((prev) => {
-          return prev.map((data, index) =>
-            index === editdata ? formdata : data
-          );
-        });
+        const { data } = await axios.put(
+          `${departmetUrl}/update/department/${editdata}`,
+          formdata,
+          {
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        if (data !== null) {
+          setCategorydata((prev) => {
+            return prev.map((data) =>
+              data["sl.no"] === editdata ? formdata : data
+            );
+          });
+        }
       } else {
-        setCategorydata((prev) => {
-          return [...prev, { ...formdata, "sl.no": prev.length + 1 }];
+        const { status } = await axios.post(`${categoryUrl}/create`, formdata, {
+          headers: { "Content-Type": "application/json" },
         });
+        if (status === 201) {
+          setCategorydata((prev) => {
+            return [...prev, formdata];
+          });
+        }
       }
     } catch (error) {
       console.error(error, "Failed handling errors");
@@ -142,9 +211,12 @@ const Category = () => {
                   onChange={handleChange}
                 >
                   <option value={"Select Department"}>Select Department</option>
-                  {getUniqueDeps.map((department, index) => (
-                    <option key={index} value={department}>
-                      {department}
+                  {uniqueDept.map((department, index) => (
+                    <option
+                      key={department.department_id}
+                      value={department["Department Name"]}
+                    >
+                      {department["Department Name"]}
                     </option>
                   ))}
                 </select>

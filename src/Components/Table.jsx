@@ -1,22 +1,14 @@
 import React from "react";
-
+import { CategoryHead, departmentHead, subCategory } from "./utils/headers";
 const Table = ({ data, onEdit, onDelete, from }) => {
-  // Get headers from the keys of the first object
-  const CategoryHead = [
-    "sl.no",
-    "Department Name",
-    "Short Name",
-    "Is Active",
-    "Category Name",
-  ];
-  const departmentHead = [
-    "sl.no",
-    "Department Name",
-    "Short Name",
-    "Is Active",
-  ];
+  // Get headers from the keys of object
+  const objectMap = {
+    subCategory: subCategory,
+    Department: departmentHead,
+    Category: CategoryHead,
+  };
+  var headers = objectMap[from];
 
-  const headers = from === "Category" ? CategoryHead : departmentHead;
   return (
     <div>
       <table className="table min-w-[900px] w-full sm:max-w-screen-lg border-collapse border border-gray-300">
@@ -27,7 +19,7 @@ const Table = ({ data, onEdit, onDelete, from }) => {
                 {header}
               </th>
             ))}
-            <th className="border border-gray-300 px-4 py-2" colSpan={2}>
+            <th className="border border-gray-300 mx-auto w-fit" colSpan={2}>
               Action
             </th>
           </tr>
@@ -39,9 +31,11 @@ const Table = ({ data, onEdit, onDelete, from }) => {
                 <>
                   <td
                     key={cellIndex}
-                    className="border border-gray-300 px-4 py-2"
+                    className="border border-gray-300 px-4 py-2 text-wrap max-w-fit"
                   >
-                    {row[header] !== undefined && row[header] !== null
+                    {header === "sl.no"
+                      ? rowIndex + 1
+                      : row[header] !== undefined && row[header] !== null
                       ? row[header].toString()
                       : ""}
                   </td>
@@ -50,8 +44,8 @@ const Table = ({ data, onEdit, onDelete, from }) => {
               <td>
                 <button
                   type="button"
-                  className="bg-orange-400 px-4 py-2 text-xs"
-                  onClick={() => onEdit(rowIndex)}
+                  className="bg-orange-400 px-4 py-2 text-xs rounded"
+                  onClick={() => onEdit(row["sl.no"])}
                 >
                   Edit
                 </button>
@@ -59,8 +53,8 @@ const Table = ({ data, onEdit, onDelete, from }) => {
               <td>
                 <button
                   type="button"
-                  className="bg-red-500 px-4 py-2 text-xs"
-                  onClick={() => onDelete(rowIndex)}
+                  className="bg-red-500 px-4 py-2 text-xs rounded"
+                  onClick={() => onDelete(row["sl.no"])}
                 >
                   Delete
                 </button>

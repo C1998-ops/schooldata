@@ -1,7 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import App, { CategoryComponent, DepartmentComponent } from "./App";
+import App, {
+  CategoryComponent,
+  DepartmentComponent,
+  SubCategoryComponent,
+} from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
@@ -10,6 +14,7 @@ const router = createBrowserRouter([
   { path: "/", element: <App /> },
   { path: "department", element: <DepartmentComponent /> },
   { path: "category", element: <CategoryComponent /> },
+  { path: "subcategory", element: <SubCategoryComponent /> },
 ]);
 root.render(
   <RouterProvider router={router}>
