@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { departmetUrl, subCategoryUrl } from "../utils/routes";
+import { departmetUrl } from "../utils/routes";
 import axios from "axios";
 const Dashboard = () => {
   const headers = ["Departments", "Categories", "Sub Categories"];

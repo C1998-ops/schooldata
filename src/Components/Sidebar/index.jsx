@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React from "react";
 import logo from "../../logo.svg";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 const Sidebar = () => {
   const items = [
     {
