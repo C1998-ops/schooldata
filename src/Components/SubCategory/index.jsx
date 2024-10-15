@@ -5,6 +5,7 @@ import axios from "axios";
 import { subCategoryUrl } from "../utils/routes";
 import handleErrors from "../utils/ErrorHandler";
 import Error from "../utils/Error";
+import Breadcrumbs from "../utils/Breadcrumbs";
 
 const SubCategory = () => {
   const subCategory = {
@@ -15,7 +16,6 @@ const SubCategory = () => {
     "Is Active": false,
   };
   const [formdata, setFormData] = useState(subCategory);
-
   const [data, setData] = useState([]);
   const [editdata, setEditdata] = useState(null);
   const [open, setOpen] = useState(false);
@@ -48,14 +48,28 @@ const SubCategory = () => {
     fetchAvailabeldept();
   }, []);
   useEffect(() => {
-    if (department) {
-      async function fetchCategories() {
-        const response = await axios.get(`${subCategoryUrl}/get/${department}`);
-        if (response.status === 200) {
-          setAvailableCategories(response.data?.data ?? []);
-        }
+    async function fetchCategories() {
+      const response = await axios.get(
+        `${subCategoryUrl}/get/category?department=${department}`
+      );
+      if (response.status === 200) {
+        const categoryData = response.data?.data ?? [];
+        setAvailableCategories(categoryData);
+        const storedCategories =
+          JSON.parse(localStorage.getItem("categoryMap")) || {};
+        storedCategories[department] = categoryData;
+        localStorage.setItem("categoryMap", JSON.stringify(storedCategories));
       }
-      fetchCategories();
+    }
+    // Fetch categories if department is selected
+    if (department) {
+      const storedCategories = JSON.parse(localStorage.getItem("categoryMap"));
+      if (storedCategories?.[department]) {
+        // Use stored categories if they exist for the selected department
+        setAvailableCategories(storedCategories[department]);
+      } else {
+        fetchCategories();
+      }
     }
   }, [department]);
 
@@ -63,7 +77,7 @@ const SubCategory = () => {
     const department = e.target.value;
     setDepartment(department);
     const departmentValue = selectDepartment.find(
-      (data) => data.department_id === department
+      (data) => data["Department Name"] === department
     );
     setFormData((prev) => {
       return { ...prev, "Department Name": departmentValue["Department Name"] };
@@ -162,14 +176,14 @@ const SubCategory = () => {
   }
 
   return (
-    <div className="min-w-full p-4">
-      <div className="w-full container">
+    <div className="w-full p-4 min-w-[300px] md:min-w-[800px]">
+      <div className="flex flex-col container flex-wrap">
         <h1 className="text-2xl font-semibold mb-4"> Sub Categories</h1>
         <div className="flex justify-between w-full">
           <h3 className="text-lg">Manage Sub Categories</h3>
           <button
             type="button"
-            className="bg-blue-900 text-white font-bold py-4 px-2 rounded"
+            className="bg-dark-purple text-white font-bold py-4 px-2 rounded"
             onClick={handleSubCategory}
           >
             Add Sub Category
@@ -177,7 +191,8 @@ const SubCategory = () => {
         </div>
         <button
           type="button"
-          className="bg-yellow-300 text-black font-bold py-4 px-2 rounded cursor-not-allowed"
+          className="bg-yellow-300 text-black font-bold py-4 px-2 rounded cursor-not-allowed max-w-20
+          "
         >
           Refresh
         </button>
@@ -213,7 +228,7 @@ const SubCategory = () => {
                   <option value="Select Department">Select Department</option>
                   {selectDepartment.map((value) => (
                     <option
-                      value={`${value["department_id"]}`}
+                      value={`${value["Department Name"]}`}
                       key={value.department_id}
                     >
                       {value["Department Name"]}
@@ -232,16 +247,20 @@ const SubCategory = () => {
                 <select
                   name="Category Name"
                   id="Availabel Categories"
-                  defaultValue={formdata["Category Name"] || "Select Category"}
+                  defaultValue={formdata["Category Name"]}
                   className="min-w-full py-2"
                   onChange={handleChange}
                 >
                   <option value="Select Category">Select Category</option>
-                  {availableCategories.map((value, index) => (
-                    <option value={`${value}`} key={`value_${index}`}>
-                      {value}
-                    </option>
-                  ))}
+                  {availableCategories.length > 0 ? (
+                    availableCategories.map((value, index) => (
+                      <option value={`${value}`} key={`value_${index}`}>
+                        {value}
+                      </option>
+                    ))
+                  ) : (
+                    <option disabled>Loading categories...</option>
+                  )}
                 </select>
                 {errors["Category Name"] && (
                   <Error field={"Category Name"} errors={errors} />

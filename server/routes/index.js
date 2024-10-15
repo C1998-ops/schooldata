@@ -3,6 +3,7 @@ const router = express.Router();
 const deptRouter = require("./department.router");
 const categoryRouter = require("./category.router");
 const subCategoryRouter = require("./subCategory.router");
+const scoreCardRouter = require("./scoreCard.router");
 //to check functioning of API
 router.get("/", (req, response) => {
   // Setting up Headers
@@ -24,9 +25,11 @@ router.get("/", (req, response) => {
   // browser in response
   response.end("ok");
 });
+
 router.use("/api", deptRouter);
 router.use("/category", categoryRouter);
 router.use("/subCategory", subCategoryRouter);
+router.use("/score", scoreCardRouter);
 
 router.get("*", (req, res) => {
   res.status(404).json({ message: "Route not found" });

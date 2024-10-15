@@ -4,6 +4,7 @@ import "./index.css";
 import App, {
   CategoryComponent,
   DepartmentComponent,
+  ScoreComponent,
   SubCategoryComponent,
 } from "./App";
 import reportWebVitals from "./reportWebVitals";
@@ -15,6 +16,7 @@ const router = createBrowserRouter([
   { path: "department", element: <DepartmentComponent /> },
   { path: "category", element: <CategoryComponent /> },
   { path: "subcategory", element: <SubCategoryComponent /> },
+  { path: "scoredetails", element: <ScoreComponent /> },
 ]);
 root.render(
   <RouterProvider router={router}>

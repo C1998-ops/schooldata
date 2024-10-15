@@ -19,6 +19,7 @@ function Department() {
   const [tableData, setTableData] = useState([]);
   const [editData, setEditData] = useState(null);
   const [formdata, setFormData] = useState(departmentInfo);
+  const [formSubmitted, setFormSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -45,6 +46,9 @@ function Department() {
   const onClose = useCallback(() => {
     setOpen(false);
     setEditData(null);
+    if (formSubmitted) {
+      setFormSubmitted(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -101,9 +105,8 @@ function Department() {
           }
         );
         if (data !== null) {
-          setTableData((prevData) => {
-            return [...prevData, formdata];
-          });
+          setTableData((prevData) => [...prevData, formdata]);
+          setFormSubmitted(true);
         }
       }
     } catch (error) {
@@ -143,25 +146,28 @@ function Department() {
   }
 
   return (
-    <div className="w-full p-8 max-h-fit">
+    <div className="w-full p-4 min-w-[550px] md:min-w-full">
       <h1 className="text-2xl font-semibold mb-4"> Departments</h1>
-      <div className="flex justify-between">
-        <h3 className="text-lg ">Manage Departments</h3>
+      <div className="max-w-4xl">
+        <div className="w-auto flex justify-between">
+          <h3 className="text-lg ">Manage Departments</h3>
+
+          <button
+            type="button"
+            className="bg-dark-purple text-white font-bold py-4 px-2 rounded"
+            onClick={handleAdddeptClick}
+          >
+            Add Department
+          </button>
+        </div>
         <button
           type="button"
-          className="bg-blue-900 text-white font-bold py-4 px-2 rounded"
-          onClick={handleAdddeptClick}
+          className="bg-yellow-300 text-black font-bold py-4 px-2 rounded cursor-not-allowed max-w-fit"
         >
-          Add Department
+          Refresh
         </button>
       </div>
-      <button
-        type="button"
-        className="bg-yellow-300 text-black font-bold py-4 px-2 rounded cursor-not-allowed"
-      >
-        Refresh
-      </button>
-      <div className="py-4 max-w-screen-lg">
+      <div className="py-4 md:max-w-screen-lg">
         <Table
           data={tableData}
           onEdit={onEdit}
@@ -170,7 +176,7 @@ function Department() {
         />
       </div>
       <Modal isOpen={open} onClose={onClose}>
-        <div className="bg-white">
+        <div className={`bg-white ${!formSubmitted ? "block" : "hidden"}`}>
           <h2 className="min-w-full md:max-w-full w-full font-bold text-2xl">
             Add Department
           </h2>
@@ -278,6 +284,7 @@ function Department() {
                 <button
                   className="bg-gray-400 text-white font-bold py-2 px-4 rounded"
                   type="button"
+                  onClick={onClose}
                 >
                   Cancel
                 </button>
@@ -291,6 +298,22 @@ function Department() {
             </div>
           </form>
         </div>
+        {formSubmitted && (
+          <div className="bg-white p-4 mx-auto flex flex-col min-w-full space-y-4">
+            <span className="text-xl font-semibold text-gray-800 items-center">
+              Department Added Successfully
+            </span>
+            <div className="w-full float-right">
+              <button
+                className="bg-gray-400 text-white font-bold py-2 px-4 rounded"
+                type="button"
+                onClick={onClose}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

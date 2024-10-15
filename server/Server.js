@@ -9,10 +9,10 @@ const router = require("./routes");
 //cors options
 const cors = require("cors");
 const corsOptions = require("./config/corsOptions");
-//database connection
 //http server
 const http = require("http");
 const server = http.createServer(app);
+//database connection
 connectdb();
 // Cross Origin Resource Sharing
 app.use(cors(corsOptions));

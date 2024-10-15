@@ -20,6 +20,7 @@ const Category = () => {
   const [editdata, setEditdata] = useState(null);
   const [open, setOpen] = useState(false);
   const [errors, setErrors] = useState({});
+  // const [formsubmitted,setFormSubmitted]=useState(false)
 
   useEffect(() => {
     async function fetchCategories() {
@@ -164,13 +165,13 @@ const Category = () => {
     });
   }
   return (
-    <div className="w-full p-8">
-      <h1 className="font-extrabold"> Category</h1>
+    <div className="w-full p-8 min-w-[300px] md:min-w-[800px]">
+      <h1 className="text-2xl font-semibold mb-4"> Category</h1>
       <div className="flex justify-between">
         <h3 className="text-lg ">Manage Category</h3>
         <button
           type="button"
-          className="bg-blue-900 text-white font-bold py-4 px-2 rounded"
+          className="bg-dark-purple text-white font-bold py-4 px-2 rounded"
           onClick={() => {
             setFormData(category);
             setOpen(true);
@@ -186,7 +187,7 @@ const Category = () => {
       >
         Refresh
       </button>
-      <div className="py-4 w-full">
+      <div className="py-4 h-screen w-full">
         <Table
           data={categoryData}
           onEdit={onEdit}

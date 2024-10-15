@@ -19,3 +19,11 @@ export const subCategory = [
   "Short Name",
   "Is Active",
 ];
+export const ScoreHead = ["sl.no", "ScoreCard Title", "ScoreCard Active"];
+export const ScoredetailHeaders = [
+  "sl.no",
+  "cardLabel",
+    "cardColor",
+  "cardValue",
+  "isNegative",
+];

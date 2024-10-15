@@ -4,7 +4,6 @@ const asyncHandler = require("express-async-handler");
 const { default: mongoose } = require("mongoose");
 exports.addSubCategory = asyncHandler(async (req, res) => {
   try {
-    console.log(req.body);
     const data = {
       departmentName: req.body["Department Name"],
       categoryName: req.body["Category Name"],
@@ -13,7 +12,6 @@ exports.addSubCategory = asyncHandler(async (req, res) => {
       isActive: req.body["Is Active"],
       imageUrl: req.body["image Url"],
     };
-
     const createRecords = new SubCategoryModel(data);
     const result = await createRecords.save();
     if (result) {
@@ -91,22 +89,20 @@ exports.currentAvailabelDepartments = asyncHandler(async (req, res) => {
   }
 });
 exports.getCategoriesByDepartment = async (req, res) => {
-  const { departmentId } = req.params;
-
   try {
-    // Fetch categories where department_id matches the selected department's _id
-    const categories = (await CategoryModel.find({ _id: departmentId })).map(
-      (data) => data.categoryName
-    );
-
+    const { department } = req.query;
+    // Fetch categories where department matches the selected department's name
+    const categories = (
+      await CategoryModel.find({ departmentName: department })
+    ).map((data) => data.categoryName);
     if (!categories || categories.length === 0) {
       return res
         .status(404)
         .json({ message: "No categories found for this department" });
     }
-
     res.status(200).json({ data: categories });
   } catch (error) {
+    console.error("Failed to retrieve categories for dept", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };

@@ -6,7 +6,6 @@ const Dashboard = () => {
   const [formData, setFormData] = useState(null);
   const [loading, setloading] = useState(true);
   const [error, setError] = useState(null);
-  console.log(formData);
   useEffect(() => {
     async function fetchDashboard() {
       try {

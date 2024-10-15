@@ -14,7 +14,7 @@ const Sidebar = () => {
     },
     { name: "Category", link: "/category" },
     { name: "Sub Category", link: "/subcategory" },
-    // { name: "Setting", link: "/" },
+    { name: "Score Details", link: "/scoredetails" },
   ];
   const location = useLocation();
   const { pathname } = location;
@@ -30,14 +30,14 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="min-h-screen max-w-[220px] sm:max-w-md bg-blue-900 h-screen p-5  pt-8 relative duration-300">
-      <div className="flex items-center py-4 justify-center box-border">
+    <div className="min-h-full max-w-[220px] sm:max-w-md bg-blue-900 h-screen p-5  pt-8 relative duration-300">
+      <div className="flex items-center py-2 justify-center box-border">
         <img
           src={logo}
           alt="logo"
           width={80}
           height={80}
-          className="bg-cover filter"
+          className="bg-center"
         />
         <span className="text-white font-bold text-lg">Evol8</span>
       </div>
@@ -46,8 +46,9 @@ const Sidebar = () => {
           const isActive = pathname === info.link;
           return (
             <li
-              className="flex rounded-md p-1 cursor-pointer text-lg items-center max-w-screen-md transition-all ease-in-out delay-500"
+              className="flex rounded-md py-1 px-2 cursor-pointer text-lg items-center transition-all ease-in-out delay-500"
               style={isActive ? activeStyle : defaultStyle}
+              key={index}
             >
               <Link
                 to={info.link}
