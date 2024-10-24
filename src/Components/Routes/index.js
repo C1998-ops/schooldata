@@ -12,11 +12,11 @@ import ProtectRoutes from "./ProtectRoutes.tsx";
 
 export const publicRoutes = [
   {
-    path: "signin",
+    path: "/signin",
     element: <SignIn />,
   },
   {
-    path: "signup",
+    path: "/signup",
     element: (
       <SignupContextProvider>
         <SignUp />
