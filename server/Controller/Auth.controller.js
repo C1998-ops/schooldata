@@ -73,7 +73,7 @@ const signInAccount = expressAsyncHandler(async (req, res) => {
         .status(400)
         .json({ type: "FAILED", message: "email not existing" });
     }
-    const validUser = bcrypt.compare(password, result.password);
+    const validUser = await bcrypt.compare(password, result.password);
     if (validUser) {
       if (result.AccountVerified) {
         const userData = {
@@ -99,7 +99,7 @@ const signInAccount = expressAsyncHandler(async (req, res) => {
     }
   } catch (error) {
     console.log("login error", error);
-    throw Error(error);
+    throw new Error(error);
   }
 });
 const verifyAccount = expressAsyncHandler(async (req, res) => {
@@ -117,7 +117,7 @@ const verifyAccount = expressAsyncHandler(async (req, res) => {
       if (updateUser) {
         return res.status(200).json({
           status: "Verification successfull",
-          url: `http://localhost:3000/signin`,
+          url: `${process.env.HOST}/signin`,
         }); // localhost
         // return res.redirect(`${process.env.PROD_CLIENT}/signin`);
       } else {

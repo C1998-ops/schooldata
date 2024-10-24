@@ -8,6 +8,7 @@ import Dashboard from "../../features/Dashboard/index.jsx";
 import App from "../../App.js";
 import ScoreDetails from "../../features/ScoreDetails/index.jsx";
 import VerifyEmailAccount from "../../features/verifyEmail/index.jsx";
+import ProtectRoutes from "./ProtectRoutes.tsx";
 
 export const publicRoutes = [
   {
@@ -27,7 +28,11 @@ export const publicRoutes = [
 export const protectedRouteslinks = [
   {
     path: "/",
-    element: <App />,
+    element: (
+      <ProtectRoutes>
+        <App />
+      </ProtectRoutes>
+    ),
     children: [
       { path: "dashboard", element: <Dashboard /> },
       {
