@@ -13,6 +13,7 @@ const corsOptions = require("./config/corsOptions");
 const http = require("http");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const server = http.createServer(app);
+const path = require("path");
 //database connection
 connectdb();
 // Cross Origin Resource Sharing
@@ -41,17 +42,13 @@ app.use(express.json());
 app.use(router);
 app.use(notFound);
 app.use(errorHandler);
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../build")));
 
+// This is the crucial part: Serve index.html for all other routes
 app.get("*", (req, res) => {
-  try {
-    res.send("Page not found");
-    // res.sendFile(path.join(`${__dirname}/../frontend/build/index.html`));
-  } catch (e) {
-    console.error(e);
-    res.send("Oops! unexpected error");
-  }
+  res.sendFile(path.join(__dirname, "../build", "index.html"));
 });
-
 //server listening
 server.listen(PORT, () => {
   console.log(`Listening on port ${process.env.HOST}`);

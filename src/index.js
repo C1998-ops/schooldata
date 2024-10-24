@@ -11,6 +11,7 @@ import {
   publicRoutes,
 } from "./Components/Routes/index.js";
 import ProtectRoutes from "./Components/Routes/ProtectRoutes.tsx";
+import PageNotFound from "./features/Notfound/index.jsx";
 
 const protectedRoutes = protectedRouteslinks?.flatMap((route) =>
   route.children.map((childRoute) => ({
@@ -18,13 +19,16 @@ const protectedRoutes = protectedRouteslinks?.flatMap((route) =>
     element: <ProtectRoutes>{childRoute.element}</ProtectRoutes>,
   }))
 );
-const routes = {
-  path: "/",
-  element: <App />,
-  children: protectedRoutes,
-};
+const routes = [
+  {
+    path: "/",
+    element: <App />,
+    children: protectedRoutes,
+  },
+  { path: "*", element: <PageNotFound /> },
+];
 const root = ReactDOM.createRoot(document.getElementById("root"));
-const router = createBrowserRouter([...publicRoutes, routes]);
+const router = createBrowserRouter([...publicRoutes, ...routes]);
 root.render(
   <ToastContextProvider>
     <SignInContextProvider>
