@@ -3,32 +3,26 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
 import { ToastContextProvider } from "./contexts/ToastContext";
 import { SignInContextProvider } from "./contexts/SignInContext.jsx";
 import {
   protectedRouteslinks,
   publicRoutes,
 } from "./Components/Routes/index.js";
-import ProtectRoutes from "./Components/Routes/ProtectRoutes.tsx";
 import PageNotFound from "./features/Notfound/index.jsx";
 
-const protectedRoutes = protectedRouteslinks?.flatMap((route) =>
-  route.children.map((childRoute) => ({
-    ...childRoute,
-    element: <ProtectRoutes>{childRoute.element}</ProtectRoutes>,
-  }))
-);
 const routes = [
-  {
-    path: "/",
-    element: <App />,
-    children: protectedRoutes,
-  },
+  ...protectedRouteslinks,
+  ...publicRoutes,
   { path: "*", element: <PageNotFound /> },
 ];
 const root = ReactDOM.createRoot(document.getElementById("root"));
-const router = createBrowserRouter([...publicRoutes, ...routes]);
+const router = createBrowserRouter(routes);
 root.render(
   <ToastContextProvider>
     <SignInContextProvider>

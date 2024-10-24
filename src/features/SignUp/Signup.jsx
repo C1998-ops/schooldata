@@ -142,8 +142,8 @@ const SignUp = () => {
                   <p>Already having an account?</p>
                   <Link
                     to={"/signin"}
-                    target="signin"
                     className="py-2 px-5 bg-white border rounded-xl hover:scale-110 duration-300"
+                    replace={true}
                   >
                     Login
                   </Link>

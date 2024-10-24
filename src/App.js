@@ -1,7 +1,6 @@
 import Layout from "./Components/layout/Layout";
 import Department from "./features/Department";
 import Category from "./features/Category";
-import Dashboard from "./features/Dashboard";
 import SubCategory from "./features/SubCategory";
 import axios from "axios";
 import { host } from "./Components/utils/routes";
@@ -50,7 +49,7 @@ function reloadWebsite() {
     });
 }
 
-// setInterval(reloadWebsite, interval);
+setInterval(reloadWebsite, interval);
 function App() {
   return (
     <Layout>

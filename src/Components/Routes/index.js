@@ -8,26 +8,37 @@ import Dashboard from "../../features/Dashboard/index.jsx";
 import App from "../../App.js";
 import ScoreDetails from "../../features/ScoreDetails/index.jsx";
 import VerifyEmailAccount from "../../features/verifyEmail/index.jsx";
+import ProtectRoutes from "./ProtectRoutes.tsx";
+import PublicRoutes from "./PublicRoutes.jsx";
 
 export const publicRoutes = [
   {
-    path: "signin",
-    element: <SignIn />,
+    element: <PublicRoutes />,
+    children: [
+      {
+        path: "signin",
+        element: <SignIn />,
+      },
+      {
+        path: "signup",
+        element: (
+          <SignupContextProvider>
+            <SignUp />
+          </SignupContextProvider>
+        ),
+      },
+      { path: "account/confirm/:token", element: <VerifyEmailAccount /> },
+    ],
   },
-  {
-    path: "signup",
-    element: (
-      <SignupContextProvider>
-        <SignUp />
-      </SignupContextProvider>
-    ),
-  },
-  { path: "account/confirm/:token", element: <VerifyEmailAccount /> },
 ];
 export const protectedRouteslinks = [
   {
     path: "/",
-    element: <App />,
+    element: (
+      <ProtectRoutes>
+        <App />
+      </ProtectRoutes>
+    ),
     children: [
       { path: "dashboard", element: <Dashboard /> },
       {

@@ -158,7 +158,7 @@ function Department() {
   return (
     <div className="p-4 box-content w-full">
       <h2 className="text-2xl font-semibold text-gray-700"> Departments</h2>
-      <div className="sm:min-w-[450px] lg:min-w-[600px]  ">
+      <div className="w-full lg:min-w-[600px]  ">
         <div className="flex justify-between">
           <h3 className="text-lg">Manage Departments</h3>
 
@@ -171,7 +171,7 @@ function Department() {
           </button>
         </div>
       </div>
-      <div className="py-4 max-w-fit md:max-w-screen-lg overflow-hidden">
+      <div className="py-4 w-full md:max-w-screen-lg overflow-hidden">
         <Table
           data={tableData}
           onEdit={onEdit}
