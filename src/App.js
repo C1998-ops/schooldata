@@ -1,11 +1,12 @@
 import Layout from "./Components/layout/Layout";
-import Department from "./Components/Department/department";
-import Category from "./Components/Category";
-import Dashboard from "./Components/Dboard";
-import SubCategory from "./Components/SubCategory";
+import Department from "./features/Department";
+import Category from "./features/Category";
+import Dashboard from "./features/Dashboard";
+import SubCategory from "./features/SubCategory";
 import axios from "axios";
 import { host } from "./Components/utils/routes";
-import ScoreDetails from "./Components/pages/ScoreDetails.tsx";
+import ScoreDetails from "./features/ScoreDetails/index";
+import { Outlet } from "react-router-dom";
 
 const DepartmentComponent = () => (
   <Layout>
@@ -53,7 +54,7 @@ function reloadWebsite() {
 function App() {
   return (
     <Layout>
-      <Dashboard />
+      <Outlet />
     </Layout>
   );
 }

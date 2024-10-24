@@ -1,13 +1,15 @@
 import React, { useCallback, useEffect, useState } from "react";
-import Table from "../Table";
-import Modal from "../Modal/Modal";
+import Table from "../../Components/Table";
+import Modal from "../../Components/Modal/Modal";
 import axios from "axios";
-import handleErrors from "../utils/ErrorHandler";
-import { departmetUrl } from "../utils/routes";
+import handleErrors from "../../Components/utils/ErrorHandler";
+import { departmetUrl } from "../../Components/utils/routes";
+import { useToast } from "../../hooks/useToast";
+import { useFetch } from "../../hooks/useFetch";
 
 function Department() {
   const [open, setOpen] = useState(false);
-
+  const toast = useToast();
   const departmentInfo = {
     "Department Name": "",
     "Short Name": "",
@@ -19,36 +21,23 @@ function Department() {
   const [tableData, setTableData] = useState([]);
   const [editData, setEditData] = useState(null);
   const [formdata, setFormData] = useState(departmentInfo);
-  const [formSubmitted, setFormSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
 
+  const {
+    data: fetchedData,
+    error,
+    loading,
+  } = useFetch(`${departmetUrl}/get/departments`);
+
   useEffect(() => {
-    async function fetchDepartments() {
-      try {
-        const { data, status } = await axios.get(
-          `${departmetUrl}/get/departments`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (status === 200 && data !== null) {
-          setTableData(data.data); // Assuming data.data contains your department data
-        }
-      } catch (error) {
-        console.error("Error fetching departments", error);
-      }
+    if (fetchedData) {
+      setTableData(fetchedData);
     }
-    fetchDepartments();
-  }, []);
+  }, [fetchedData]);
 
   const onClose = useCallback(() => {
     setOpen(false);
     setEditData(null);
-    if (formSubmitted) {
-      setFormSubmitted(false);
-    }
   }, []);
 
   useEffect(() => {
@@ -63,11 +52,28 @@ function Department() {
 
   const onDelete = async (rowId) => {
     try {
-      await axios.delete(`${departmetUrl}/delete/department/${rowId}`);
-      const updatedData = tableData.filter((_, i) => _["sl.no"] !== rowId);
-      setTableData(updatedData);
-    } catch (err) {
-      console.error(err);
+      const { data, status } = await axios.delete(
+        `${departmetUrl}/delete/department/${rowId}`
+      );
+      if (status === 200 && data.data !== null) {
+        toast.error(data?.message);
+        setTableData((curr) => curr.filter((_, i) => _["sl.no"] !== rowId));
+      }
+    } catch (error) {
+      if (error.response) {
+        const { data, status } = error?.response;
+        console.error("Error:", error.response.data);
+        if (status === 404) {
+          toast.error(data?.message);
+        } else if (status === 500) {
+          toast.error(data?.message);
+        }
+      } else if (error.request) {
+        toast.error("No response received");
+      } else {
+        console.error("error deleting department", error);
+        toast.error("error deleting department");
+      }
     }
   };
 
@@ -83,18 +89,17 @@ function Department() {
           }
         );
         if (data) {
+          toast.success(data?.message);
           setTableData((prevData) =>
             prevData.map((value) =>
               value["sl.no"] === editData ? { ...value, ...formdata } : value
             )
           );
         }
-        return;
       } else {
         const errors = handleErrors(formdata);
         if (Object.keys(errors).length > 0) {
           setErrors(errors);
-          console.log(errors);
           return;
         }
         const { data } = await axios.post(
@@ -105,13 +110,19 @@ function Department() {
           }
         );
         if (data !== null) {
+          toast.success(data?.message);
           setTableData((prevData) => [...prevData, formdata]);
-          setFormSubmitted(true);
         }
       }
     } catch (error) {
+      console.log(error);
+      const { data, status } = error?.response;
       console.error("Failed to save department", error);
+      if (status === 500) {
+        toast.error(data?.message);
+      }
     } finally {
+      setOpen(false);
       setFormData({
         "sl.no": "",
         "Department Name": "",
@@ -144,13 +155,12 @@ function Department() {
     });
     setOpen(true);
   }
-
   return (
-    <div className="w-full p-4 min-w-[550px] md:min-w-full">
-      <h1 className="text-2xl font-semibold mb-4"> Departments</h1>
-      <div className="max-w-4xl">
-        <div className="w-auto flex justify-between">
-          <h3 className="text-lg ">Manage Departments</h3>
+    <div className="p-4 box-content w-full">
+      <h2 className="text-2xl font-semibold text-gray-700"> Departments</h2>
+      <div className="sm:min-w-[450px] lg:min-w-[600px]  ">
+        <div className="flex justify-between">
+          <h3 className="text-lg">Manage Departments</h3>
 
           <button
             type="button"
@@ -160,26 +170,19 @@ function Department() {
             Add Department
           </button>
         </div>
-        <button
-          type="button"
-          className="bg-yellow-300 text-black font-bold py-4 px-2 rounded cursor-not-allowed max-w-fit"
-        >
-          Refresh
-        </button>
       </div>
-      <div className="py-4 md:max-w-screen-lg">
+      <div className="py-4 max-w-fit md:max-w-screen-lg overflow-hidden">
         <Table
           data={tableData}
           onEdit={onEdit}
           onDelete={onDelete}
           from={"Department"}
+          loader={loading}
         />
       </div>
       <Modal isOpen={open} onClose={onClose}>
-        <div className={`bg-white ${!formSubmitted ? "block" : "hidden"}`}>
-          <h2 className="min-w-full md:max-w-full w-full font-bold text-2xl">
-            Add Department
-          </h2>
+        <div className="bg-white md:max-w-full w-full">
+          <h2 className="font-bold text-2xl">Add Department</h2>
           <form onSubmit={AddDepartment}>
             <div className="flex space-y-2 flex-col my-2">
               <label htmlFor="Department Name" className="block text-gray-500">
@@ -258,7 +261,7 @@ function Department() {
                 isActive
                 {errors["Is Active"] && (
                   <span className="block w-full text-red-500 text-sm">
-                    z{errors["Is Active"]}
+                    {errors["Is Active"]}
                   </span>
                 )}
               </label>
@@ -269,6 +272,7 @@ function Department() {
                   id="days"
                   multiple
                   className="w-full outline-none"
+                  onChange={handleChange}
                   defaultValue={["monday"]}
                 >
                   <option value="monday">Monday</option>
@@ -298,7 +302,7 @@ function Department() {
             </div>
           </form>
         </div>
-        {formSubmitted && (
+        {/* {formSubmitted && (
           <div className="bg-white p-4 mx-auto flex flex-col min-w-full space-y-4">
             <span className="text-xl font-semibold text-gray-800 items-center">
               Department Added Successfully
@@ -313,7 +317,7 @@ function Department() {
               </button>
             </div>
           </div>
-        )}
+        )} */}
       </Modal>
     </div>
   );

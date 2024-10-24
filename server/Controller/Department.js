@@ -3,7 +3,6 @@ const Model = require("../Models/Department.model");
 const CategoryModel = require("../Models/Category.model");
 const SubCategoryModel = require("../Models/SubCategory.model");
 const AddDepartment = asyncHandler(async (req, res) => {
-  console.log("body", req.body);
   const departmentData = {
     departmentName: req.body["Department Name"],
     shortName: req.body["Short Name"],
@@ -14,16 +13,16 @@ const AddDepartment = asyncHandler(async (req, res) => {
   const data = new Model(departmentData);
   try {
     await data.save();
-    res.status(201).json({ message: "Department added successfull !" });
+    res.status(201).json({ message: "Department added successfully !" });
   } catch (error) {
     console.error("Failed saving department data", error);
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: "Failled to save department" });
   }
 });
 const getDepartments = asyncHandler(async (req, res) => {
   try {
     const data = await Model.find();
-    const prepareddata = data.map((department, index) => ({
+    const prepareddata = data.map((department) => ({
       "sl.no": department._id,
       "Department Name": department.departmentName,
       "Short Name": department.shortName,
@@ -77,8 +76,8 @@ const updateDepartments = asyncHandler(async (req, res) => {
 const deleteDepartments = asyncHandler(async (req, res) => {
   try {
     const rowId = req.params.id;
-    console.log(rowId);
     const newData = await Model.findByIdAndDelete(rowId);
+
     if (newData !== null) {
       res.status(200).json({
         message: "Department deleted successfully !",
@@ -88,11 +87,11 @@ const deleteDepartments = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: "Department not deleted !" });
     }
   } catch (error) {
-    console.error("Failed to update department", error);
+    console.error("Failed to delete department", error);
 
     res
       .status(500)
-      .json({ message: "Failed to update department", error: error.message });
+      .json({ message: "Failed to delete department", error: error.message });
   }
 });
 const getSubCategoryCount = asyncHandler(async (req, res) => {

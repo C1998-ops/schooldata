@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import ScoreTable from "./ScoreTable";
-import ToggleButton from "../ToggleButton";
+import ToggleButton from "../../Components/ToggleButton";
 import axios from "axios";
-import { scoreCardUrl } from ".././utils/routes";
+import { scoreCardUrl } from "../../Components/utils/routes";
+
 const ScoreCard = () => {
   const info = {
     ScoreCard_Title: "",

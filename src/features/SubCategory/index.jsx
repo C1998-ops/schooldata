@@ -1,16 +1,16 @@
 import React, { useCallback, useEffect, useState } from "react";
-import Table from "../Table";
-import Modal from "../Modal/Modal";
+import Table from "../../Components/Table";
+import Modal from "../../Components/Modal/Modal";
 import axios from "axios";
-import { subCategoryUrl } from "../utils/routes";
-import handleErrors from "../utils/ErrorHandler";
-import Error from "../utils/Error";
-import Breadcrumbs from "../utils/Breadcrumbs";
-
+import { subCategoryUrl } from "../../Components/utils/routes";
+import handleErrors from "../../Components/utils/ErrorHandler";
+import Error from "../../Components/utils/Error";
+import { useFetch } from "../../hooks/useFetch";
+import { useToast } from "../../hooks/useToast";
 const SubCategory = () => {
   const subCategory = {
-    "Department Name": "Select Department",
-    "Category Name": "Select Category",
+    "Department Name": "",
+    "Category Name": "",
     "SubCategory Name": "",
     "Short Name": "",
     "Is Active": false,
@@ -24,69 +24,58 @@ const SubCategory = () => {
   const [department, setDepartment] = useState("");
   const [availableCategories, setAvailableCategories] = useState([]);
 
-  useEffect(() => {
-    async function retireveSubCategories() {
-      const { data, status } = await axios.get(`${subCategoryUrl}/get/data`, {
-        headers: { "Content-Type": "application/json" },
-      });
-      if (status === 200) {
-        const table = data?.data ?? [];
-        setData(table);
-      }
-    }
-    retireveSubCategories();
-  }, []);
+  const toast = useToast();
+  const { data: fetchedSubCategory } = useFetch(`${subCategoryUrl}/get/data`);
+  const { data: deptfetched } = useFetch(`${subCategoryUrl}/departments`);
 
   useEffect(() => {
-    async function fetchAvailabeldept() {
-      const { data, status } = await axios.get(`${subCategoryUrl}/departments`);
-      if (status === 200) {
-        const departmentAvailabel = data?.data.map((data) => data) ?? [];
-        setSelectedDepartment(departmentAvailabel);
-      }
+    if (fetchedSubCategory) {
+      setData(fetchedSubCategory);
     }
-    fetchAvailabeldept();
-  }, []);
+  }, [fetchedSubCategory]);
+
   useEffect(() => {
-    async function fetchCategories() {
-      const response = await axios.get(
-        `${subCategoryUrl}/get/category?department=${department}`
-      );
-      if (response.status === 200) {
-        const categoryData = response.data?.data ?? [];
-        setAvailableCategories(categoryData);
-        const storedCategories =
-          JSON.parse(localStorage.getItem("categoryMap")) || {};
-        storedCategories[department] = categoryData;
-        localStorage.setItem("categoryMap", JSON.stringify(storedCategories));
+    if (deptfetched) {
+      setSelectedDepartment(deptfetched);
+    }
+  }, [deptfetched]);
+
+  useEffect(() => {
+    async function fetchCategoriesForDeptartment() {
+      try {
+        const response = await axios.get(
+          `${subCategoryUrl}/get/category?department=${department}`
+        );
+        const result = response?.data;
+        if (response.status === 200) {
+          const categoryData = result?.data ?? [];
+          setAvailableCategories(categoryData);
+          const storedCategories =
+            JSON.parse(localStorage.getItem("categoryMap")) || {};
+          storedCategories[department] = categoryData;
+          localStorage.setItem("categoryMap", JSON.stringify(storedCategories));
+        }
+      } catch (error) {
+        console.error("Error fetching categories for department", error);
       }
     }
     // Fetch categories if department is selected
-    if (department) {
+    if (department && department !== "Select Department") {
       const storedCategories = JSON.parse(localStorage.getItem("categoryMap"));
       if (storedCategories?.[department]) {
         // Use stored categories if they exist for the selected department
         setAvailableCategories(storedCategories[department]);
       } else {
-        fetchCategories();
+        fetchCategoriesForDeptartment();
       }
     }
   }, [department]);
 
-  const handleDepartmentChange = (e) => {
-    const department = e.target.value;
-    setDepartment(department);
-    const departmentValue = selectDepartment.find(
-      (data) => data["Department Name"] === department
-    );
-    setFormData((prev) => {
-      return { ...prev, "Department Name": departmentValue["Department Name"] };
-    });
-  };
-
   function handleChange(event) {
     const { name, type, value, checked } = event.target;
-
+    if (name === "Department Name") {
+      setDepartment(value);
+    }
     setFormData((prev) => {
       return { ...prev, [name]: type === "checkbox" ? checked : value };
     });
@@ -98,18 +87,44 @@ const SubCategory = () => {
     setOpen(true);
   }
   const onEdit = async (id) => {
-    setEditdata(id);
-    setFormData(data.find((data) => data["sl.no"] === id));
-    setOpen(true);
+    try {
+      setEditdata(id);
+      const newData = data.find((data) => data["sl.no"] === id);
+      setFormData((prev) => ({ ...prev, ...newData }));
+      const department = newData["Department Name"];
+      const storedCategories = JSON.parse(localStorage.getItem("categoryMap"));
+      if (storedCategories?.[department]) {
+        setAvailableCategories(storedCategories[department]);
+      }
+      setOpen(true);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   async function onDelete(index) {
-    const response = await axios.delete(`${subCategoryUrl}/delete/${index}`, {
-      headers: { "Content-Type": "application/json" },
-    });
-    if (response.status === 200) {
-      const updatedData = data.filter((_, i) => _["sl.no"] !== index);
-      setData(updatedData);
+    try {
+      const { data, status } = await axios.delete(
+        `${subCategoryUrl}/delete/${index}`,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (status === 200) {
+        toast.success(data?.message);
+        setData((prev) => prev.filter((_, i) => _["sl.no"] !== index));
+      }
+    } catch (error) {
+      const { status, data } = error.response;
+      if (status === 400) {
+        toast.error(data?.message);
+        console.error("error deleting data", error);
+      } else if (status === 500) {
+        console.error("unknown error at server s", error);
+        toast.error(data?.message);
+      } else {
+        console.log("error", error);
+      }
     }
   }
   const onClose = useCallback(() => {
@@ -125,7 +140,6 @@ const SubCategory = () => {
     try {
       event.preventDefault();
       const errors = handleErrors(formdata);
-      console.log(errors);
       if (Object.keys(errors).length > 0) {
         setErrors(errors);
         return;
@@ -133,17 +147,20 @@ const SubCategory = () => {
       if (editdata !== null) {
         const { data, status } = await axios.put(
           `${subCategoryUrl}/update/${editdata}`,
-          { formdata },
+          formdata,
           {
             headers: { "Content-Type": "application/json" },
           }
         );
         if (status === 200 && data !== null) {
+          toast.success(data?.message);
           setData((prev) => {
             return prev.map((data) =>
               data["sl.no"] === editdata ? formdata : data
             );
           });
+          setOpen(false);
+          setEditdata(null);
         }
       } else {
         const { data, status } = await axios.post(
@@ -152,14 +169,17 @@ const SubCategory = () => {
           { headers: { "Content-Type": "application/json" } }
         );
         if (status === 201 && data !== null) {
+          toast.success(data?.message);
           setData((prev) => {
             return [...prev, formdata];
           });
+          setOpen(false);
         }
       }
     } catch (error) {
       console.error(error);
       if (error.response) {
+        toast.error(error.response?.data?.message);
         console.error(
           `Error: ${error.response.status}, ${error.response.data?.message}`
         );
@@ -176,10 +196,13 @@ const SubCategory = () => {
   }
 
   return (
-    <div className="w-full p-4 min-w-[300px] md:min-w-[800px]">
-      <div className="flex flex-col container flex-wrap">
-        <h1 className="text-2xl font-semibold mb-4"> Sub Categories</h1>
-        <div className="flex justify-between w-full">
+    <div className="w-full p-4">
+      <div>
+        <h1 className="text-2xl font-semibold mb-2 text-gray-700">
+          {" "}
+          Sub Categories
+        </h1>
+        <div className="flex justify-between min-w-full">
           <h3 className="text-lg">Manage Sub Categories</h3>
           <button
             type="button"
@@ -189,15 +212,15 @@ const SubCategory = () => {
             Add Sub Category
           </button>
         </div>
-        <button
+        {/* <button
           type="button"
           className="bg-yellow-300 text-black font-bold py-4 px-2 rounded cursor-not-allowed max-w-20
           "
         >
           Refresh
-        </button>
+        </button> */}
       </div>
-      <div className="py-4 max-w-screen-lg">
+      <div className="py-4 flex  md:max-w-screen-lg">
         <Table
           onEdit={onEdit}
           onDelete={onDelete}
@@ -219,10 +242,11 @@ const SubCategory = () => {
                 Department
                 <select
                   name="Department Name"
+                  key={formdata["Department Name"]}
                   id="department Name"
                   defaultValue={formdata["Department Name"]}
                   className="min-w-full py-2"
-                  onChange={handleDepartmentChange}
+                  onChange={handleChange}
                   required
                 >
                   <option value="Select Department">Select Department</option>
@@ -245,6 +269,7 @@ const SubCategory = () => {
               >
                 Category
                 <select
+                  key={formdata["Category Name"]}
                   name="Category Name"
                   id="Availabel Categories"
                   defaultValue={formdata["Category Name"]}
@@ -315,6 +340,7 @@ const SubCategory = () => {
                 <button
                   className="bg-gray-400 text-white font-bold py-2 px-4 rounded"
                   type="button"
+                  onClick={onClose}
                 >
                   Cancel
                 </button>

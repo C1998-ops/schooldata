@@ -77,3 +77,32 @@ thead {
   position: sticky;
   top: 0;
 }
+
+/* toast slide-In and slide-out*/
+.toast {
+  animation: slide-In 0.2s ease-in forwards;
+}
+@keyframes slide-In {
+  0% {
+    opacity: 0;
+    transform: translatey(0%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(80%);
+  }
+}
+.toast-dismissed {
+  animation: slide-out 0.3s ease-out backwards;
+}
+
+@keyframes slide-out {
+  0% {
+    opacity: 1;
+    transform: translateX(0%);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}

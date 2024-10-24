@@ -1,14 +1,16 @@
 import React, { useCallback, useEffect, useState } from "react";
-import Table from "../Table";
-import Modal from "../Modal/Modal";
-import handleErrors from "../utils/ErrorHandler";
-import Error from "../utils/Error";
-import { categoryUrl, departmetUrl } from "../utils/routes";
+import Table from "../../Components/Table";
+import Modal from "../../Components/Modal/Modal";
+import handleErrors from "../../Components/utils/ErrorHandler";
+import Error from "../../Components/utils/Error";
+import { categoryUrl } from "../../Components/utils/routes";
 import axios from "axios";
+import { useFetch } from "../../hooks/useFetch";
+import { useToast } from "../../hooks/useToast";
 
 const Category = () => {
   const category = {
-    "Department Name": "Select Department",
+    "Department Name": "",
     "Category Name": "",
     "Short Name": "",
     "image Url": "",
@@ -20,40 +22,17 @@ const Category = () => {
   const [editdata, setEditdata] = useState(null);
   const [open, setOpen] = useState(false);
   const [errors, setErrors] = useState({});
+  const toast = useToast();
   // const [formsubmitted,setFormSubmitted]=useState(false)
+  const { data: fetchCategories, error } = useFetch(
+    `${categoryUrl}/get/categories`
+  );
 
   useEffect(() => {
-    async function fetchCategories() {
-      try {
-        const { data, status } = await axios.get(
-          `${categoryUrl}/get/categories`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (status === 200) {
-          const result = data?.data ?? [];
-          setCategorydata(result);
-        }
-      } catch (error) {
-        console.error("Error fetching departments", error);
-        if (error.response) {
-          console.error(
-            `Error: ${error.response.status}, ${error.response.data?.message}`
-          );
-        } else if (error.request) {
-          // The request was made but no response received
-          console.error("No response received", error.request);
-        } else {
-          // Something went wrong while setting up the request
-          console.error("Error setting up request", error.message);
-        }
-      }
+    if (fetchCategories) {
+      setCategorydata(fetchCategories);
     }
-    fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
   useEffect(() => {
     async function handleDepartments() {
@@ -90,14 +69,22 @@ const Category = () => {
       }
     );
     if (data !== null && status === 200) {
-      const updatedData = categoryData.filter((_, i) => _["sl.no"] !== index);
-      setCategorydata(updatedData);
+      toast.success(data.message);
+      setCategorydata((prev) => prev.filter((_, id) => _["sl.no"] !== index));
     }
   }
 
   function onEdit(rowid) {
-    const data = categoryData.find((data) => data["sl.no"] === rowid);
-    setFormData(data);
+    setEditdata(rowid);
+    const selectedData = categoryData.find((data) => data["sl.no"] === rowid);
+    setFormData((prevState) => ({
+      ...prevState,
+      "Department Name": selectedData["Department Name"] || "",
+      "Category Name": selectedData["Category Name"] || "",
+      "Short Name": selectedData["Short Name"] || "",
+      "image Url": selectedData["image Url"] || "",
+      "Is Active": selectedData["Is Active"] || false,
+    }));
     setOpen(true);
   }
 
@@ -109,6 +96,7 @@ const Category = () => {
   useEffect(() => {
     setEditdata(null);
   }, [onClose]);
+
   async function AddCategory(event) {
     try {
       event.preventDefault();
@@ -118,32 +106,40 @@ const Category = () => {
         return;
       }
       if (editdata !== null) {
-        const { data } = await axios.put(
-          `${departmetUrl}/update/department/${editdata}`,
+        const { data, status } = await axios.put(
+          `${categoryUrl}/update/Category/${editdata}`,
           formdata,
           {
             headers: { "Content-Type": "application/json" },
           }
         );
-        if (data !== null) {
+        if (data !== null && status === 200) {
+          toast.success("Category data updated successfull !");
           setCategorydata((prev) => {
             return prev.map((data) =>
               data["sl.no"] === editdata ? formdata : data
             );
           });
+          setOpen(false);
         }
       } else {
         const { status } = await axios.post(`${categoryUrl}/create`, formdata, {
           headers: { "Content-Type": "application/json" },
         });
         if (status === 201) {
+          toast.success("Category data added successfull !");
           setCategorydata((prev) => {
             return [...prev, formdata];
           });
+          setOpen(false);
         }
       }
     } catch (error) {
-      console.error(error, "Failed handling errors");
+      console.error("Failed to save category data", error);
+      const { data, status } = error?.response;
+      if (status === 500) {
+        toast.error(data?.message);
+      }
     } finally {
       setFormData({
         "Category Name": "",
@@ -180,20 +176,26 @@ const Category = () => {
           Add Category
         </button>
       </div>
-      <button
+      {/* <button
         type="button"
         className="bg-yellow-300 text-black font-bold py-4 px-2 rounded cursor-not-allowed"
         disabled
       >
         Refresh
-      </button>
-      <div className="py-4 h-screen w-full">
-        <Table
-          data={categoryData}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          from="Category"
-        />
+      </button> */}
+      <div className="py-4 w-full">
+        {error ? (
+          <span className="text-sm font-light p-2 mx-auto inline-block">
+            Data not available at the moment.
+          </span>
+        ) : (
+          <Table
+            data={categoryData}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            from="Category"
+          />
+        )}
       </div>
       <Modal isOpen={open} onClose={onClose}>
         <div className="bg-white">
@@ -208,7 +210,10 @@ const Category = () => {
                   id="Department Name"
                   name="Department Name"
                   className="block w-full"
-                  value={formdata["Department Name"] || "Select Department"}
+                  key={formdata["Department Name"]}
+                  defaultValue={
+                    formdata["Department Name"] || "Select Department"
+                  }
                   onChange={handleChange}
                 >
                   <option value={"Select Department"}>Select Department</option>

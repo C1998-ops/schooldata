@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 const { connectdb } = require("./Database/dbConn");
 const router = require("./routes");
 //cors options
@@ -11,6 +11,7 @@ const cors = require("cors");
 const corsOptions = require("./config/corsOptions");
 //http server
 const http = require("http");
+const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const server = http.createServer(app);
 //database connection
 connectdb();
@@ -38,6 +39,8 @@ app.use(express.json());
 
 //routes
 app.use(router);
+app.use(notFound);
+app.use(errorHandler);
 
 app.get("*", (req, res) => {
   try {
@@ -51,7 +54,7 @@ app.get("*", (req, res) => {
 
 //server listening
 server.listen(PORT, () => {
-  console.log(`Listening on port http://localhost:80`);
+  console.log(`Listening on port ${process.env.HOST}`);
 });
 
 module.exports = server;

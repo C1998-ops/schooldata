@@ -34,7 +34,7 @@ exports.getAllScores = asyncHandler(async (req, res) => {
       "ScoreCard Title": data.scoreCardTitle,
       "ScoreCard Active": data.scoreCardIsActive,
     }));
-    res.json(transformData);
+    res.status(200).json({ type: "SUCCESS", data: transformData });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });

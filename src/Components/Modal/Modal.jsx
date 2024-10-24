@@ -20,7 +20,7 @@ const Modal = ({ isOpen, onClose, children }) => {
   }, [onClose, openModal]);
   return (
     openModal && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 border-2 border-blue-300 focus-within:bg-opacity-30 flex justify-center items-center transition-opacity delay-200 ease-in">
+      <div className="fixed inset-0 bg-black bg-opacity-50 border-2 border-gray-300 focus-within:bg-opacity-30 flex justify-center items-center transition-opacity delay-200 ease-in z-20">
         <div className="bg-white p-8 rounded-md shadow-lg relative">
           <button
             onClick={onClose}

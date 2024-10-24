@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ScoredetailHeaders } from "../utils/headers";
+import { ScoredetailHeaders } from "../../Components/utils/headers";
 
 const ScoreTable = ({ scoreDetail, addItem }) => {
   const info = {
