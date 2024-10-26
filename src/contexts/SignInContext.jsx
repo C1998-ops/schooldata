@@ -13,7 +13,7 @@ export const SignInContextProvider = ({ children }) => {
   // });
 
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("evol8User"));
+    const stored = JSON.parse(localStorage.getItem("evol8User")) ?? null;
     setMyState(stored);
   }, []);
 

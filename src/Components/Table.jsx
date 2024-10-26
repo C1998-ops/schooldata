@@ -28,12 +28,12 @@ const Table = ({ data, onEdit, onDelete, from, loader }) => {
           <div className="loader"></div>
         </div>
       ) : (
-        <div className="bg-white mt-4 overflow-auto">
-          <div className="relative overflow-auto">
+        <div className="mt-4 w=-full">
+          <div className="relative w-full max-w-fit sm:max-w-screen-md md:max-w-screen-lg overflow-x-auto">
             <div className="overflow-x-auto overflow-y-auto bg-gray-50 rounded-md">
               <table
-                className="table-fixed  w-full border-collapse border border-gray-400 sm:max-w-screen-md md:max-w-screen-lg"
-                style={{ display: "table" }}
+                className="table-fixed w-full min-w-full border-collapse border-2 border-gray-200"
+                style={{ display: loader ? "none" : "table" }}
               >
                 <thead>
                   <tr className="text-center text-xs md:text-sm font-semibold text-white bg-dark-purple">
@@ -74,17 +74,17 @@ const Table = ({ data, onEdit, onDelete, from, loader }) => {
                             </td>
                           </>
                         ))}{" "}
-                        <td className="relative flex items-center justify-center space-x-1 py-2">
+                        <td className="relative flex items-center justify-center space-x-1 py-2 font-medium">
                           <button
                             type="button"
-                            className="bg-orange-500 px-2 py-1 text-xs  font-semibold rounded-md hover:bg-orange-400 text-white focus:outline-none"
+                            className="bg-blue-700 px-2 py-1 text-xs  rounded-md hover:bg-blue-800 text-white focus:outline-none"
                             onClick={() => onEdit(row["sl.no"])}
                           >
                             Edit
                           </button>
                           <button
                             type="button"
-                            className="bg-red-500 px-2 py-1 text-xs font-semibold rounded-md  hover:bg-red-400 text-white focus:outline-none"
+                            className="bg-red-500 px-2 py-1 text-xs rounded-md  hover:bg-red-400 text-white focus:outline-none"
                             onClick={() => handleDelete(row["sl.no"])}
                           >
                             Delete

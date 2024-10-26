@@ -6,6 +6,7 @@ import handleErrors from "../../Components/utils/ErrorHandler";
 import { departmetUrl } from "../../Components/utils/routes";
 import { useToast } from "../../hooks/useToast";
 import { useFetch } from "../../hooks/useFetch";
+import AddButton from "../../Components/Button/Button";
 
 function Department() {
   const [open, setOpen] = useState(false);
@@ -144,7 +145,7 @@ function Department() {
       [name]: "",
     }));
   }
-  function handleAdddeptClick() {
+  function handleDepartment() {
     setFormData({
       "sl.no": "",
       "Department Name": "",
@@ -155,23 +156,21 @@ function Department() {
     });
     setOpen(true);
   }
+  if (error !== null) {
+    return (
+      <span className="text-gray-500 font-medium p-4 inline">{error}</span>
+    );
+  }
   return (
-    <div className="p-4 box-content w-full">
+    <div className="h-full p-2 box-content w-full">
       <h2 className="text-2xl font-semibold text-gray-700"> Departments</h2>
-      <div className="w-full lg:min-w-[600px]  ">
-        <div className="flex justify-between">
-          <h3 className="text-lg">Manage Departments</h3>
-
-          <button
-            type="button"
-            className="bg-dark-purple text-white font-bold py-4 px-2 rounded"
-            onClick={handleAdddeptClick}
-          >
-            Add Department
-          </button>
+      <div className="w-full min-w-fit sm:max-w-xl md:max-w-screen-lg">
+        <div className="flex justify-between items">
+          <h3 className="text-lg text-gray-500">Manage Departments</h3>
+          <AddButton category={"Department"} click={handleDepartment} />
         </div>
       </div>
-      <div className="py-4 w-full md:max-w-screen-lg overflow-hidden">
+      <div className="py-4 w-full max-w-lg sm:max-w-screen-md md:max-w-screen-lg">
         <Table
           data={tableData}
           onEdit={onEdit}

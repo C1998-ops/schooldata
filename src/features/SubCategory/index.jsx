@@ -7,6 +7,7 @@ import handleErrors from "../../Components/utils/ErrorHandler";
 import Error from "../../Components/utils/Error";
 import { useFetch } from "../../hooks/useFetch";
 import { useToast } from "../../hooks/useToast";
+import AddButton from "../../Components/Button/Button";
 const SubCategory = () => {
   const subCategory = {
     "Department Name": "",
@@ -196,31 +197,15 @@ const SubCategory = () => {
   }
 
   return (
-    <div className="w-full p-4">
+    <div className="w-full p-4 max-w-sm sm:max-w-screen-md md:max-w-screen-lg">
       <div>
-        <h1 className="text-2xl font-semibold mb-2 text-gray-700">
-          {" "}
-          Sub Categories
-        </h1>
+        <h2 className="font-semibold text-2xl"> Sub Categories</h2>
         <div className="flex justify-between min-w-full">
-          <h3 className="text-lg">Manage Sub Categories</h3>
-          <button
-            type="button"
-            className="bg-dark-purple text-white font-bold py-4 px-2 rounded"
-            onClick={handleSubCategory}
-          >
-            Add Sub Category
-          </button>
+          <h3 className="text-lg text-gray-500">Manage Sub Categories</h3>
+          <AddButton category={"SubCategory"} click={handleSubCategory} />
         </div>
-        {/* <button
-          type="button"
-          className="bg-yellow-300 text-black font-bold py-4 px-2 rounded cursor-not-allowed max-w-20
-          "
-        >
-          Refresh
-        </button> */}
       </div>
-      <div className="py-4 flex  md:max-w-screen-lg">
+      <div className="py-2 w-full max-w-md sm:max-w-2xl md:max-w-screen-lg">
         <Table
           onEdit={onEdit}
           onDelete={onDelete}
@@ -229,12 +214,10 @@ const SubCategory = () => {
         />
       </div>
       <Modal isOpen={open} onClose={onClose}>
-        <div className="bg-white">
-          <h2 className="w-full sm:min-w-[440px] font-bold text-2xl">
-            Add Sub Category
-          </h2>
+        <h2 className="font-semibold text-2xl">Add Sub Category</h2>
+        <div className="bg-white flex place-items-center max-w-sm sm:max-w-screen-sm md:max-w-screen-lg">
           <form onSubmit={AddSubCategory}>
-            <div className="flex space-y-4 flex-col my-2">
+            <div className="flex space-y-2 flex-col my-2">
               <label
                 htmlFor="department Name"
                 className="block w-full text-gray-500"

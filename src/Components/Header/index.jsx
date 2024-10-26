@@ -5,13 +5,13 @@ import { FaBars } from "react-icons/fa";
 const Header = ({ toggleMobile, toggleSideMenuWidth }) => {
   const { handleSignOut } = useAuth();
   return (
-    <nav className=" fixed top-0 start-0 w-full sm:max-w-screen-2xl z-10 border-b border-gray-500 shadow-sm max-h-24">
-      <div className="w-full bg-red-700 flex flex-wrap items-center justify-between mx-auto py-1 border-b-2 border-black px-4">
+    <nav className="fixed top-0 start-0 z-20 border-b border-gray-500 shadow-sm max-h-24 w-full">
+      <div className="bg-red-700 flex flex-wrap items-center justify-between px-2 py-1 border-b-2 border-black  max-w-md sm:max-w-screen-md md:max-w-screen-xl lg:max-w-screen-2xl">
         <button
           aria-controls="logo-sidebar"
           type="button"
           onClick={() => toggleSideMenuWidth()}
-          className="items-center p-2 mt-2 ms-3 text-sm hidden md:block text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+          className="items-center p-2 mt-2 ms-3 text-sm hidden sm:block text-white rounded-lg focus:outline-none px-4 focus:ring-2 focus:ring-gray-200"
         >
           <span className="sr-only">Open sidebar</span>
           <svg
@@ -28,14 +28,16 @@ const Header = ({ toggleMobile, toggleSideMenuWidth }) => {
             ></path>
           </svg>
         </button>
-        <button className="text-xs md:hidden font-semibold outline-none border-none rounded-lg focus:outline-none p-2 focus:ring-2 focus:outline-white">
+        <button
+          className="text-md sm:hidden font-semibold rounded-lg border-none outline-none p-2 focus:outline-white"
+          onClick={() => toggleSideMenuWidth()}
+        >
           <FaBars
-            color="white"
+            color="White"
             size={18}
             alignmentBaseline="central"
-            onClick={toggleMobile}
-            width={8}
-            height={8}
+            width={6}
+            height={6}
           />
         </button>
         <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
@@ -43,7 +45,7 @@ const Header = ({ toggleMobile, toggleSideMenuWidth }) => {
         </span>
         <button
           type="button"
-          className="border-none text-xs font-semibold font-sans text-white bg-slate-100 bg-opacity-50
+          className="items-center border-none text-xs font-semibold font-sans text-white bg-slate-100 bg-opacity-50
            px-4 py-2 rounded-md"
           onClick={() => handleSignOut()}
         >

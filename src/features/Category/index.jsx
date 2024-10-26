@@ -7,6 +7,7 @@ import { categoryUrl } from "../../Components/utils/routes";
 import axios from "axios";
 import { useFetch } from "../../hooks/useFetch";
 import { useToast } from "../../hooks/useToast";
+import AddButton from "../../Components/Button/Button";
 
 const Category = () => {
   const category = {
@@ -160,30 +161,18 @@ const Category = () => {
       return { ...prev, [name]: "" };
     });
   }
+  function handleCategory() {
+    setFormData(category);
+    setOpen(true);
+  }
   return (
-    <div className="w-full p-8 min-w-[300px] md:min-w-[800px]">
-      <h1 className="text-2xl font-semibold mb-4"> Category</h1>
+    <div className="w-full p-4 h-auto">
+      <h2 className="text-2xl font-semibold text-gray-700"> Category</h2>
       <div className="flex justify-between">
-        <h3 className="text-lg ">Manage Category</h3>
-        <button
-          type="button"
-          className="bg-dark-purple text-white font-bold py-4 px-2 rounded"
-          onClick={() => {
-            setFormData(category);
-            setOpen(true);
-          }}
-        >
-          Add Category
-        </button>
+        <h3 className="text-lg text-gray-500">Manage Category</h3>
+        <AddButton category={"Category"} click={handleCategory} />
       </div>
-      {/* <button
-        type="button"
-        className="bg-yellow-300 text-black font-bold py-4 px-2 rounded cursor-not-allowed"
-        disabled
-      >
-        Refresh
-      </button> */}
-      <div className="py-4 w-full">
+      <div className="py-2 w-full max-w-sm sm:max-w-screen-md md:max-w-screen-xl">
         {error ? (
           <span className="text-sm font-light p-2 mx-auto inline-block">
             Data not available at the moment.
@@ -198,10 +187,8 @@ const Category = () => {
         )}
       </div>
       <Modal isOpen={open} onClose={onClose}>
-        <div className="bg-white">
-          <h2 className="min-w-[400px] w-full font-bold text-2xl">
-            Add Category
-          </h2>
+        <h2 className="font-semibold text-2xl">Add Category</h2>
+        <div className="bg-white flex place-items-center">
           <form onSubmit={AddCategory}>
             <div className="flex space-y-2 flex-col my-2">
               <label htmlFor="Department Name" className="block text-gray-500">
@@ -289,6 +276,7 @@ const Category = () => {
                 <button
                   className="bg-gray-400 text-white font-bold py-2 px-4 rounded"
                   type="button"
+                  onClick={onClose}
                 >
                   Cancel
                 </button>

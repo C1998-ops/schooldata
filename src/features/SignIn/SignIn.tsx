@@ -37,8 +37,8 @@ const SignIn = () => {
   }
 
   return (
-    <section className="bg-gray-50 min-h-screen flex items-center justify-center">
-      <div className="bg-gray-100 flex rounded-md shadow-lg w-full sm:max-w-md md:max-w-4xl p-4 justify-center items-center transition-all ease-in duration-700 delay-400 focus-within:bg-gradient-to-r from-white to-blue-100 focus:inset-2">
+    <section className="bg-gray-50 h-screen flex items-center justify-center">
+      <div className="bg-gray-100 flex rounded-md shadow-lg w-full sm:max-w-screen-sm md:max-w-screen-md p-4 justify-center items-center transition-all ease-in duration-700 delay-400 focus-within:bg-gradient-to-r from-white to-blue-100 focus:inset-2">
         <div className="md:block hidden w-1/2 h-full">
           <div className="border-none min-w-full">
             <img
@@ -49,7 +49,7 @@ const SignIn = () => {
             />
           </div>
         </div>
-        <div className="sm:w-full md:w-1/2 h-full px-8 md:px-8">
+        <div className="w-full sm:max-w-lg md:w-1/2 h-full px-4 md:px-8">
           <h2 className="font-bold text-2xl text-gray-900 tracking-tight">
             SignIn
           </h2>

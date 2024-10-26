@@ -8,10 +8,11 @@ const ProtectRoutes: FC<Props> = ({ children }) => {
   const auth = useAuth();
   let location = useLocation();
   if (!auth.myState) {
-    console.warn("Authentication required to access protected source.")
+    console.warn("Authentication required to access protected source.");
     return <Navigate to={"/signin"} state={{ from: location }} replace />;
   }
 
-  return children ? <>{children}</> : <Outlet />;
+  // return children ? <>{children}</> : <Outlet />;
+  return children;
 };
 export default ProtectRoutes;

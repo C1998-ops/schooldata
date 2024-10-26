@@ -38,8 +38,8 @@ const ScoreDetails = () => {
   }
 
   return (
-    <div className="w-full h-full p-4">
-      <h1 className="text-2xl font-semibold text-gray-700">Score Details</h1>
+    <div className="w-full h-full sm:max-h-screen p-2 max-w-lg sm:max-w-screen-md md:max-w-full">
+      <h2 className="font-semibold text-2xl">Score Details</h2>
       <div className="w-full sm:min-w-[450px md:min-w-[700px]">
         <span
           className="w-5 h-5 rounded-full p-4 bg-blue-400 float-right cursor-pointer relative mx-12"
@@ -58,7 +58,7 @@ const ScoreDetails = () => {
             />
           </svg>
         </span>
-        <div className="py-2 flex md:max-w-screen-sm">
+        <div className="py-2 flex max-w-full sm:max-w-xl md:max-w-screen-lg">
           <Table
             data={scoreDetail ?? []}
             onEdit={onEdit}
