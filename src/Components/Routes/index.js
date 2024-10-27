@@ -33,14 +33,13 @@ export const publicRoutes = [
 ];
 export const protectedRouteslinks = [
   {
-    path: "/",
     element: (
       <ProtectRoutes>
         <App />
       </ProtectRoutes>
     ),
     children: [
-      { path: "dashboard", element: <Dashboard /> },
+      { path: "/", element: <Dashboard /> },
       {
         path: "department",
         element: <Department />,

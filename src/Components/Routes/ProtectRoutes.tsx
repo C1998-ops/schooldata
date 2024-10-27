@@ -12,7 +12,6 @@ const ProtectRoutes: FC<Props> = ({ children }) => {
     return <Navigate to={"/signin"} state={{ from: location }} replace />;
   }
 
-  // return children ? <>{children}</> : <Outlet />;
-  return children;
+  return children ? <>{children}</> : <Outlet />;
 };
 export default ProtectRoutes;
